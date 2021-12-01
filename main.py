@@ -1,46 +1,6 @@
 #!/usr/bin/env python3
 
 from queue import Empty, Queue
-
-
-class Tree:
-  # val : tupla(level, profit, bound, weight)
-  # level  --> Level of node in decision tree (or index
-  #             in arr[]
-  # profit --> Profit of nodes on path from root to this
-  #            node (including this node)
-  # bound ---> Upper bound of maximum profit in subtree
-  #            of this node/
-  
-  def __init__(self, val = None):
-    if val != None:
-      self.val = val
-    else:
-        self.val = None
-    self.left = None
-    self.right = None
-
-  def insert(self, val):
-    if self.val:
-        if val < self.val:
-            if self.left is None:
-              self.left = Tree(val)
-            else:
-              self.left.insert(val)
-        elif val > self.val:
-            if self.right is None:
-              self.right = Tree(val)
-            else:
-              self.right.insert(val)
-    else:
-        self.val = val
-
-  def printValues(self):
-    if self.left:
-        self.left.printValues()
-    print(self.val)
-    if self.right:
-        self.right.printValues()
         
 def read_input():
   num_itens, num_pares_proibidos, capacidade = input().split(" ", 3)
@@ -63,18 +23,32 @@ def read_input():
 
   return num_itens, num_pares_proibidos, capacidade, valores_pesos, pares_proibidos
 
-def bound():
-  return 0
+def bound(valores_pesos, tam, capacidade, node):
+  if node[3] >= capacidade:
+    return 0
+  
+  lucro_bound = node[1]
+  j = node[0] + 1
+  peso = node[3]
+  
+  while j < tam and peso + valores_pesos[j][1] <= capacidade:
+    peso = peso + valores_pesos[j][1]
+    lucro_bound = lucro_bound + valores_pesos[j][0]
+    j = j + 1
+    
+  if j < tam:
+    lucro_bound = lucro_bound + (capacidade - peso) * valores_pesos[j][0]/valores_pesos[j][1]
+    
+  return lucro_bound
   
 def knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos):
   sorted_valores_pesos = sorted(valores_pesos, key=lambda t: float(t[0])/t[1])
-  tam = len(valores_pesos)
+  tam = len(sorted_valores_pesos)
   # val : tupla(level, profit, bound, weight)
   max = 0
   fila = []
-  fila.append((-1, 0, 0 ,0))
-  n1 = n2 = (0, 0, 0, 0)
-  # queue = Tree((-1, 0, 0 ,0))
+  fila.append([-1, 0, 0 ,0])
+  n1 = n2 = [0, 0, 0, 0]
   
   while (len(fila) > 0):
     n1 = fila[0]
@@ -86,13 +60,13 @@ def knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos):
     if (n1[0] == tam-1):
       continue
     
-    n1[1] = n2[1] + valores_pesos[n2[0]][0]
-    n1[3] = n2[3] + valores_pesos[n2[0]][1]
+    n1[1] = n2[1] + sorted_valores_pesos[n2[0]][0]
+    n1[3] = n2[3] + sorted_valores_pesos[n2[0]][1]
     
     if n2[3] <= capacidade and n2[1] > max:
       max = n2[1]
       
-    n2[2] = bound(valores_pesos, tam, capacidade, n2)
+    n2[2] = bound(sorted_valores_pesos, tam, capacidade, n2)
     
     if n2[2] > max:
       fila.append(n2)
@@ -100,19 +74,19 @@ def knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos):
     n2[3] = n1[3]
     n2[1] = n1[1]
     
-    n2[2] = bound(valores_pesos, tam, capacidade, n2)
+    n2[2] = bound(sorted_valores_pesos, tam, capacidade, n2)
     if n2[2] > max:
       fila.append(n2)
     
-  print(valores_pesos)
+  # print(valores_pesos)
   print(sorted_valores_pesos)
-  return 0
+  return max
 
 def main():
   num_itens, num_pares_proibidos, capacidade, valores_pesos, pares_proibidos = read_input()
   
   print(num_itens, num_pares_proibidos, capacidade, pares_proibidos)
-  knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos)
+  print("max: ", knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos))
   return 0
 
 if __name__ == "__main__":
