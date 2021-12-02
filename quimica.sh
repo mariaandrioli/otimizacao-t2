@@ -1,6 +1,6 @@
 #!/bin/sh
 make
-FILES="testes/*"
+FILES="testes/*.in"
 if [ $? -eq 0 ] ; then
   for f in $FILES
   do
