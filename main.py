@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+import sys, time
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def read_input():
   num_itens, num_pares_proibidos, capacidade = input().split(" ", 3)
   num_itens = int(num_itens)
@@ -53,6 +58,7 @@ def bound(valores_pesos, tam, capacidade, node):
   return profit_bound
   
 def knapsack(capacidade, valores_pesos):
+  start = time.time()
   sorted_valores_pesos = sorted(valores_pesos, key=lambda t: t[0]/float(t[1]), reverse=True)
   tam = len(sorted_valores_pesos)
   
@@ -101,14 +107,18 @@ def knapsack(capacidade, valores_pesos):
       fila.append(v)
       
   escolhidos = sorted([ x+1 for x in escolhidos])
+  end = time.time()
 
-  return max, escolhidos
+  return max, escolhidos, end - start, len(escolhidos)
 
 def main():
   capacidade, valores_pesos_classes = read_input()
-  max, escolhidos = knapsack(capacidade, valores_pesos_classes)
+  max, escolhidos, tempo, nodes = knapsack(capacidade, valores_pesos_classes)
   print(max)
   print(*escolhidos)
+  
+  eprint("{:.5f}".format(tempo))
+  eprint(nodes)
   return 0
 
 if __name__ == "__main__":
