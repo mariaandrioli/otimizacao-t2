@@ -6,6 +6,8 @@ if [ $? -eq 0 ] ; then
   do
     echo "Processing $f file..."
     ./quimica < $f
+    # echo "\n"
+    # python3 teste.py
     echo "\n"
   done
 else 
