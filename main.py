@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
+
+def dfs(adj_list, visited, vertex, result, key):
+    visited.add(vertex)
+    result[key].append(vertex)
+    for neighbor in adj_list[vertex]:
+        if neighbor not in visited:
+            dfs(adj_list, visited, neighbor, result, key)
+            
+
 def read_input():
   num_itens, num_pares_proibidos, capacidade = input().split(" ", 3)
   num_itens = int(num_itens)
@@ -13,13 +23,47 @@ def read_input():
   valores = [ int(x) for x in valores ]
   
   valores_pesos = list(zip(valores, pesos))
+  valores_pesos_classes = [list(elem) for elem in valores_pesos]
+  
+  for i in valores_pesos_classes:
+    i.append(-1)
+  
 
   pares_proibidos = []
   for i in range(num_pares_proibidos):
     i, j = input().split()
     pares_proibidos.append((int(i), int(j)))
+  
+  classes = {}
+  
+  adj_list = defaultdict(list)
+  for x, y in pares_proibidos:
+      adj_list[x].append(y)
+      adj_list[y].append(x)
+  
+  result = defaultdict(list)
+  visited = set()
+  for vertex in adj_list:
+      if vertex not in visited:
+          dfs(adj_list, visited, vertex, result, vertex)
+  
+  comuns = list(result.values())
+  if len(comuns) > 0:
+    for i in range(len(comuns)):
+      classes[i] = comuns[i]
+      for j in range(len(comuns[i])):
+        valores_pesos_classes[ comuns[i][j]-1 ][2] = i
+    
+  index = len(comuns)
+  for i in range(len(valores_pesos)):
+    element_in_sublists = [i+1 in list for list in comuns]
+    if not any(element_in_sublists):
+      classes[index] = [i + 1]
+      valores_pesos_classes[i][2] = index
+      index = index + 1
 
-  return num_itens, num_pares_proibidos, capacidade, valores_pesos, pares_proibidos
+  # print(valores_pesos_classes) 
+  return num_itens, num_pares_proibidos, capacidade, valores_pesos, classes
 
 def bound(valores_pesos, tam, capacidade, node):
   if node[3] >= capacidade:
@@ -87,17 +131,17 @@ def knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos):
       fila.append(n2)
   
   print("escolhidos:", escolhidos)
-  # taken = [0] * len(sorted_valores_pesos)
-  # for i in range(len(escolhidos)):
-  #     taken[escolhidos[i]] = 1
+  taken = [0] * len(sorted_valores_pesos)
+  for i in range(len(escolhidos)):
+      taken[escolhidos[i]] = 1
   print(sorted_valores_pesos)
   return max
 
 def main():
-  num_itens, num_pares_proibidos, capacidade, valores_pesos, pares_proibidos = read_input()
+  num_itens, num_pares_proibidos, capacidade, valores_pesos, classes = read_input()
   
-  print(num_itens, num_pares_proibidos, capacidade, pares_proibidos)
-  print("max: ", knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos))
+  # print(num_itens, num_pares_proibidos, capacidade, classes)
+  # print("max: ", knapsack(num_pares_proibidos, capacidade, valores_pesos, pares_proibidos))
   return 0
 
 if __name__ == "__main__":
