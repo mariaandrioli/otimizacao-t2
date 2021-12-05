@@ -107,7 +107,8 @@ def knapsack(capacidade, valores_pesos):
 def main():
   capacidade, valores_pesos_classes = read_input()
   max, escolhidos = knapsack(capacidade, valores_pesos_classes)
-  print("max: ", max, " escolhidos: ", escolhidos)
+  print(max)
+  print(*escolhidos)
   return 0
 
 if __name__ == "__main__":
